@@ -74,8 +74,8 @@ export default class World {
      * @returns The distance traveled by the ray until it hit a wall. -1 if it did not hit anything.
      */
     sendRay(startX: number, startY: number, angle: number): number {
-        const maxRayDist = 1000;
-        const rayStep = 1;
+        const maxRayDist = 1500;
+        const rayStep = 3;
 
         let x = startX;
         let y = startY;
@@ -107,8 +107,6 @@ export default class World {
             this.playerY += Math.sin(this.playerRotation) * this.walk_speed * deltaTime;
             this.playerX += Math.cos(this.playerRotation) * this.walk_speed * deltaTime;
         }
-
-        console.log("X: " + this.playerX + " Y: " + this.playerY + " R: " + this.playerRotation);
     }
 
     private setUpInputs() {

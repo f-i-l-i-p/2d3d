@@ -1,25 +1,26 @@
 import World from "./world";
 
 export default class Viewer {
-    private world: World;
-    private context: CanvasRenderingContext2D;
+	private world: World;
+	private context: CanvasRenderingContext2D;
 
-    constructor(world: World, context: CanvasRenderingContext2D) {
-        this.world = world;
-        this.context = context;
-    }
+	private static readonly WALL_HEIGHT: number = 100;
+	private static readonly FOV: number = 0.7;
+	private static readonly RAYS: number = 100;
 
-    draw(): void {
+	constructor(world: World, context: CanvasRenderingContext2D) {
+		this.world = world;
+		this.context = context;
+	}
+
+	draw(): void {
 		this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
 
-        const rays = 300;
-        const fov = 0.8;
+		for (let i = 0; i < Viewer.RAYS; i++) {
+			const offset = i - Viewer.RAYS / 2;
+			const angle = Viewer.FOV * offset / (Viewer.RAYS / 2);
 
-		for (let i = 0; i < rays; i++) {
-			const offset = i - rays / 2;
-			const angle = fov * offset / (rays / 2);
-
-            const columnPos = (i / rays) * this.canvasWidth();
+			const columnPos = (i / Viewer.RAYS) * this.canvasWidth();
 
 			this.drawColumn(angle, columnPos);
 		}
@@ -29,12 +30,15 @@ export default class Viewer {
 		const dist = this.world.sendRay(this.world.getPlayerX(), this.world.getPlayerY(), this.world.playerRotation + angle);
 		const height = this.calculateWallHeight(dist);
 
+		const width = Math.ceil(this.canvasWidth() / Viewer.RAYS) + 1;
+
 		const center = this.canvasHeight() / 2;
 
 		const y0 = center - height / 2;
 		const y1 = center + height / 2;
 
 		this.context.strokeStyle = "#555555";
+		this.context.lineWidth = width;
 		this.context.beginPath();
 		this.context.moveTo(x, y0);
 		this.context.lineTo(x, y1);
@@ -47,18 +51,25 @@ export default class Viewer {
 		this.context.stroke();
 	}
 
-    canvasWidth(): number {
-        return this.context.canvas.width;
-    }
+	canvasWidth(): number {
+		return this.context.canvas.width;
+	}
 
-    canvasHeight(): number {
-        return this.context.canvas.height;
-    }
+	canvasHeight(): number {
+		return this.context.canvas.height;
+	}
 
 	calculateWallHeight(dist: number): number {
 		if (dist == -1) return 0;
 
-		const height = 1000 - dist  // Math.pow(dist / 800, 10) / 20;
+		const angle = Math.atan(Viewer.WALL_HEIGHT / dist);
+		const fovPercent = angle / Viewer.FOV;
+		var height = fovPercent * this.canvasHeight();
+
+		// Lower resolution
+		height /= this.canvasHeight() / Viewer.RAYS;
+		height = Math.round(height);
+		height *= this.canvasHeight() / Viewer.RAYS;
 
 		return Math.min(height, this.canvasHeight());
 	}
