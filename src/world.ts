@@ -82,10 +82,10 @@ export default class World {
         let dist = 0;
 
         while (dist < maxRayDist) {
-            x += Math.cos(angle) * rayStep;
-            y += Math.sin(angle) * rayStep;
+            x -= Math.cos(angle) * rayStep;
+            y -= Math.sin(angle) * rayStep;
 
-            dist = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+            dist += rayStep;
 
             if (this.isWallAt(x, y)) {
                 return dist;
@@ -96,19 +96,19 @@ export default class World {
     }
 
     update(deltaTime: number): void {
-        if (this.right) this.playerRotation -= this.rotation_speed * deltaTime;
-        if (this.left) this.playerRotation += this.rotation_speed * deltaTime;
+        if (this.right) this.playerRotation += this.rotation_speed * deltaTime;
+        if (this.left) this.playerRotation -= this.rotation_speed * deltaTime;
 
         if (this.forward) {
-            this.playerY += Math.cos(this.playerRotation) * this.walk_speed * deltaTime;
-            this.playerX -= Math.sin(this.playerRotation) * this.walk_speed * deltaTime;
+            this.playerY -= Math.sin(this.playerRotation) * this.walk_speed * deltaTime;
+            this.playerX -= Math.cos(this.playerRotation) * this.walk_speed * deltaTime;
         }
         if (this.backwards) {
-            this.playerY -= Math.cos(this.playerRotation) * this.walk_speed * deltaTime;
-            this.playerX += Math.sin(this.playerRotation) * this.walk_speed * deltaTime;
+            this.playerY += Math.sin(this.playerRotation) * this.walk_speed * deltaTime;
+            this.playerX += Math.cos(this.playerRotation) * this.walk_speed * deltaTime;
         }
 
-        console.log("X: " + this.playerX + " Y: " + this.playerY + " ");
+        console.log("X: " + this.playerX + " Y: " + this.playerY + " R: " + this.playerRotation);
     }
 
     private setUpInputs() {
